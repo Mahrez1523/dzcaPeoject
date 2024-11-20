@@ -1,0 +1,193 @@
+/* General Styling */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+h1, h2 {
+  color: #cb0707; /* Matching the theme */
+}
+
+/* Fixed Header */
+.homepage-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #fff; /* White background for contrast */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  z-index: 1000; /* Ensure it stays above other elements */
+}
+
+.header-left img {
+  margin-right: 10px; /* Space between flags */
+}
+
+.header-right nav ul {
+  list-style: none; /* Remove bullet points */
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center; /* Align links vertically */
+}
+
+.header-right nav ul li {
+  margin-right: 20px; /* Space between navigation items */
+}
+
+.header-right nav ul li a {
+  text-decoration: none; /* Remove underline */
+  color: #333; /* Dark color for text */
+  font-weight: bold; /* Make links stand out */
+  transition: color 0.3s ease; /* Smooth color change */
+}
+
+.header-right nav ul li a:hover {
+  color: #18cc24; /* Highlight color for hover effect */
+}
+
+.login-button {
+  background-color: #18cc24; /* Green background for the button */
+  color: white; /* White text for contrast */
+  padding: 8px 15px; /* Add padding for button */
+  border-radius: 5px; /* Rounded corners */
+  text-decoration: none; /* Remove underline */
+  transition: background-color 0.3s ease; /* Smooth background transition */
+}
+
+.login-button:hover {
+  background-color: #0f7015; /* Darker green on hover */
+}
+
+/* Hero Section */
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 60px;
+  padding: 100px 50px; /* Extra padding to avoid overlap with fixed header */
+  background-color: #f4f4f4;
+}
+
+.hero-content {
+  flex: 1;
+}
+
+.hero-content h1 {
+  font-size: 2.5rem;
+}
+
+.hero-content p {
+  margin-top: 20px;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.cta-button {
+  margin-top: 20px;
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.cta-button:hover {
+  background-color: #3e8e41;
+}
+
+.hero-image {
+  flex: 1;
+  text-align: center;
+}
+
+.hero-image img {
+  max-width: 80%;
+  height: auto;
+}
+
+/* Content Section */
+.content-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 50px;
+  background-color: #fff;
+}
+
+.content-text {
+  flex: 1;
+  padding-right: 20px;
+}
+
+.content-image {
+  flex: 1;
+  text-align: center;
+}
+
+.content-image img {
+  max-width: 80%;
+  height: auto;
+}
+
+/* Services Section */
+.services-section {
+  padding: 50px;
+  background-color: #f4f4f4;
+  text-align: center;
+}
+
+.services-grid {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.service {
+  flex: 1;
+  margin: 0 10px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.service h3 {
+  color: #cb0707;
+  font-size: 1.5rem;
+}
+
+.service p {
+  margin-top: 10px;
+  line-height: 1.5;
+  color: #555;
+}
+
+/* Contact Section */
+.contact-section {
+  padding: 50px;
+  background-color: #fff;
+  text-align: center;
+}
+
+.contact-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.contact-section ul li {
+  font-size: 1rem;
+  margin: 10px 0;
+}
+html {
+  scroll-behavior: smooth;
+}

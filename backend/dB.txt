@@ -1,0 +1,5 @@
+mahrezaberkane
+nK59Jkgv0vDBGqSW
+
+mongodb+srv://mahrezaberkane:nK59Jkgv0vDBGqSW@cluster0.02rud.mongodb.net/
+mongodb+srv://mahrezaberkane:<db_password>@cluster0.02rud.mongodb.net/
