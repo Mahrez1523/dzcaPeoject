@@ -134,8 +134,10 @@
 
 import React, { useState } from 'react';
 import './signup.css';
-
+import API from '../../api'; // Importe l'instance Axios
+import { useNavigate } from 'react-router-dom'
 const SignUp = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -152,7 +154,7 @@ const SignUp = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Validation des mots de passe
     if (formData.password !== formData.confirmPassword) {
@@ -164,9 +166,18 @@ const SignUp = () => {
       alert('Vous devez accepter les conditions d\'utilisation pour continuer.');
       return;
     }
+        try {
+            const response = await API.post('/user/register', formData);
+            console.log('User registered:', response.data);
+            alert('Formulaire soumis avec succès !');
+            navigate('/signin')
+        } catch (error) {
+          //  console.error('Error registering user:', error.response.data.message);
+            alert('Error registering user:', error.response.data.message);
+        }
     // Soumission réussie
     console.log('Données utilisateur :', formData);
-    alert('Formulaire soumis avec succès !');
+    
   };
 
   return (

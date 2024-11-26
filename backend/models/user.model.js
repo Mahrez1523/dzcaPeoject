@@ -4,14 +4,7 @@ const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema(
   {
-    nom: {
-      type: String,
-      required: true,
-      minLength: 3,
-      maxLength: 55,
-      trim: true
-    },
-    prenom: {
+    name: {
       type: String,
       required: true,
       minLength: 3,

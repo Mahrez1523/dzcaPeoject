@@ -1,78 +1,82 @@
-import React, {useState} from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios'
+
+import React, { useState, useEffect } from 'react';
+import API from '../../api';
+import { useNavigate } from 'react-router-dom'
 import './signIn.css'
+import { useDispatch, useSelector } from 'react-redux';
+import { setUserId, setUserData } from '../../redux/userSlice';
 
-function SignIn() {
-    const navigate = useNavigate();
-    const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const SignIn = () => {
+  const dispatch = useDispatch(); // Initialiser dispatch
+  const userData = useSelector((state) => state.user.userData);
+  const navigate = useNavigate();
+    const [formData, setFormData] = useState({
+        email: '',
+        password: '',
+    });
 
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault(); // Prevent page reload
-    console.log('Login attempt:', { email, password });
-    //  authentication or API call
-    axios({
-      method: "post",
-      url: "http://localhost:5000/api/user/login",
-      withCredentials: true,
-      data: {
-        email,
-        password,
-      },
-    }
-    ).then((res) => {
-      console.log(res.status)
-        if (res.status===200) {
-          console.log(res.data);
-          alert(res.data)
-          
-        } else {
-          console.log(res.data.user);
-          
-          navigate('/home')
-          
+    useEffect(() => {
+      if (userData) {
+        // Si l'utilisateur est connecté, rediriger vers la page Home
+        navigate('/home');
+      }
+    }, [userData, navigate]);
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await API.post('/user/login', formData);
+            const data = response.data;
+            
+            if (response.status === 201) { // Vérifie le statut HTTP
+              localStorage.setItem('token', response.data.token); // Stocke le token pour les futures requêtes
+              dispatch(setUserId(data.user._id)); // Enregistre le userId dans Redux
+               dispatch(setUserData(data.user)); 
+              navigate('/home'); // Navigue vers la page Profile
+            } else {
+              alert(data.message || 'Login failed.'); // Affiche un message d'erreur si fourni
+            }
+                
+            
+
+            
+        } catch (error) {
+            alert('Error logging in:', error.message);
         }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    };
 
-
-    
-  };
     return (
-        <div className="login-page">
-      <div className="login-container">
-        <h2>Se connecter</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Email:</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Mot de passe:</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit">Se connecter</button>
-        </form>
-      </div>
-  
-    </div>
-       
+              <div className="login-page">
+            <div className="login-container">
+              <h2>Se connecter</h2>
+              <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <label>Email:</label>
+                  <input type="email" name="email" placeholder="Email" onChange={handleChange} />
+                </div>
+                <div className="form-group">
+                  <label>Mot de passe:</label>
+                  <input type="password" name="password" placeholder="Password" onChange={handleChange} />
+                </div>
+                <button type="submit">Se connecter</button>
+              </form>
+            </div>
         
-    );
-}
+          </div>
+             
+              
+          );
+};
 
 export default SignIn;
+
+
+
+
+
+
+

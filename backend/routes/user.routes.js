@@ -12,7 +12,7 @@ const {uploadPDP} = require('../midlleware/multer.middleware')
 router.post('/register', authController.signUp)
 router.get('/confirm/:token', authController.confirmEmail)
 router.post('/login',authController.signIn)
-router.get('/logout',authController.logout)
+router.post('/logout',authController.logout)
 // CRUD
 
 router.get('/',userController.getAllUsers)

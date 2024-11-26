@@ -1,73 +1,192 @@
-// src/App.js
-import React, { useState } from 'react';
+import React, { useState, useEffect,useCallback  } from 'react';
 import './home.css';
-import { FaImage, FaHeart, FaExclamationTriangle } from 'react-icons/fa'; // Import the image, heart, and warning icons
+import { useNavigate } from 'react-router-dom'
+import { FaImage, FaHeart, FaExclamationTriangle } from 'react-icons/fa'; // Import icons
+import API from '../../api'; // Assurez-vous que vous avez configuré Axios ou un équivalent dans ce fichier
+import { useSelector,useDispatch } from 'react-redux';
+import { clearUser } from '../../redux/userSlice';
 
 function Home() {
   const [posts, setPosts] = useState([]);
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const [myPosts, setmyPosts] = useState(false);
+  const [message, setMessage] = useState('');
   const [image, setImage] = useState(null);
   const [editingPost, setEditingPost] = useState(null);
   const [showLikes, setShowLikes] = useState(null);
 
-  const handlePost = () => {
-    if (editingPost) {
-      const updatedPosts = posts.map(post =>
-        post.id === editingPost.id
-          ? { ...post, title, content, postImg: image || post.postImg }
-          : post
-      );
-      setPosts(updatedPosts);
-      setEditingPost(null);
-    } else {
-      const newPost = {
-        id: posts.length + 1,
-        title,
-        content,
-        author: 'Aya Celyne',
-        date: new Date().toLocaleString(),
-        profileImg: 'https://via.placeholder.com/50',
-        postImg: image,
-        likes: [],
-      };
-      setPosts([newPost, ...posts]);
-    }
-    setTitle('');
-    setContent('');
-    setImage(null);
-  };
+  const navigate= useNavigate();
+  const dispatch = useDispatch();
+  
+ const userData =  useSelector((state) => state.user.userData);
 
+
+
+  const fetchUserData = useCallback(async (userId) => {
+    try {
+      const response = await API.get(`/user/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Erreur lors de la récupération des données de l'utilisateur avec l'ID ${userId}`, error);
+      return null;
+    }
+  }, []); // Ce tableau vide signifie que la fonction sera créée une seule fois au début et ne sera pas recréée lors des autres rendus.
+
+  
+
+
+
+ 
+
+  useEffect(() => {
+   
+   
+
+    if (!userData || !userData._id) return;
+  
+    const fetchPostsWithUserData = async () => {
+      try {
+        const response = await API.get(
+          myPosts ? `post/user/${userData._id}` : '/post/'
+        );
+  
+        // Récupérer les données utilisateur pour chaque post
+        const postsWithUserData = await Promise.all(
+          response.data.map(async (post) => {
+            const userData = await fetchUserData(post.posterId); // Une requête par utilisateur
+            return {
+              ...post,
+              userName: userData?.name || 'Utilisateur inconnu',
+              userPicture: userData?.profilePicture || null,
+            };
+          })
+        );
+  
+        setPosts(postsWithUserData); // Mettre à jour les posts enrichis
+      } catch (error) {
+        console.error('Erreur lors du chargement des posts enrichis', error);
+      }
+    };
+  
+    fetchPostsWithUserData();
+  }, [myPosts,userData,fetchUserData,navigate]); // Pas d'autres dépendances
+  
+  
+  
+
+  const fetchPosts = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/post');
+      if (response.ok) {
+        const data = await response.json();
+        setPosts(data); // Mettre à jour les posts dans l'état
+      } else {
+        console.error('Erreur lors de la récupération des posts');
+      }
+    } catch (error) {
+      console.error('Erreur réseau :', error);
+    }
+  };
+  
+  const handlePost = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('message', message);
+      formData.append('posterId', userData._id);
+      if (image) {
+        formData.append('file', image); // Ajout de l'image
+      }
+  
+      if (editingPost) {
+        await API.put(`/post/${editingPost._id}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      } else {
+        const response = await API.post('/post/createpost', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        setPosts([response.data, ...posts]);
+      }
+      fetchPosts();
+      setTitle('');
+      setMessage('');
+      setImage(null);
+      setEditingPost(null);
+    } catch (error) {
+      console.error('Erreur lors de la gestion du post', error);
+    }
+  };
+  
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setImage(URL.createObjectURL(e.target.files[0]));
+      setImage(e.target.files[0]); // Garde le fichier brut pour l'envoi
     }
   };
+  
 
   const handleEdit = (post) => {
     setTitle(post.title);
-    setContent(post.content);
+    setMessage(post.message);
     setImage(post.postImg);
     setEditingPost(post);
   };
 
-  const handleLike = (postId) => {
-    const updatedPosts = posts.map(post => {
-      if (post.id === postId) {
-        const isLiked = post.likes.includes('Current User');
-        const newLikes = isLiked
-          ? post.likes.filter(user => user !== 'Current User')
-          : [...post.likes, 'Current User'];
-        return { ...post, likes: newLikes };
-      }
-      return post;
-    });
-    setPosts(updatedPosts);
+ const checkProfile= ()=>{
+    navigate('/profile')
+ }
+  
+
+  const handleLike = async (postId) => {
+    try {
+      const response = await API.patch(`/post/like-post/${postId}`, { userId: userData._id });
+      const updatedPosts = posts.map(post =>
+        post._id === postId ? { ...post, likes: response.data.likes } : post
+      );
+      setPosts(updatedPosts);
+      fetchPosts();
+    } catch (error) {
+      console.error('Erreur lors du like du post', error);
+    }
   };
+  
 
   const toggleShowLikes = (postId) => {
     setShowLikes(showLikes === postId ? null : postId);
   };
+  
+  
+  if (!userData) {
+    return (<div>Chargement</div>)
+  }
+
+  const handleLogout = async () => {
+    try {
+      // Appel à l'API pour se déconnecter
+      const response = await API.post('/user/logout');
+      if (response.status === 200) {
+        console.log('Déconnexion réussie');
+      } else {
+        console.error('Problème lors de la déconnexion :', response.status);
+      }
+  
+      // Suppression des données utilisateur
+      dispatch(clearUser());
+      localStorage.removeItem('token');
+  
+      // Redirection vers la page de connexion
+      navigate('/signin');
+    } catch (error) {
+      // Affichage de l'erreur pour débogage
+      console.error('Erreur lors de la déconnexion :', error.message || error);
+  
+      // Optionnel : informer l'utilisateur en cas d'erreur
+      alert('Une erreur est survenue lors de la déconnexion. Veuillez réessayer.');
+    }
+  };
+  
+  
+  
 
   return (
     <div className="main-container">
@@ -78,15 +197,19 @@ function Home() {
       <div className="content-wrapper">
         <aside className="profile-sidebar">
           <div className="profile">
-            <img src="https://png.pngtree.com/png-vector/20240601/ourmid/pngtree-casual-man-flat-design-avatar-profile-picture-vector-png-image_12593008.png" alt="Profile" className="profile-img" />
-            <h2>Aya Celyne</h2>
-            <button className="settings-button">Voir profil</button>
-            <button className="view-posts-button">Mes Publication</button>
+            <img src= {`http://localhost:5000${userData.profiliePicture}`} alt="Profile" className="profile-img" />
+            <h2>{userData.name }</h2>
+            <button className="settings-button" onClick = {checkProfile}>Voir profil</button>
+            <button className="view-posts-button" onClick={() => setmyPosts((prev) => !prev)}>{myPosts ? 'Tous les posts' : 'Mes Publications'}</button>
             <div className="sidebar-comment">
               <FaExclamationTriangle className="warning-icon" />
               <p>
               N'oubliez pas d'indiquer le vol (ville - ville) ainsi que la date dans le titre. Pensez également à ajouter votre numéro de téléphone ou votre adresse courriel pour être contacté. Merci !
               </p>
+            </div>
+            <div>
+            <button className="settings-button" onClick = {handleLogout}>Déconnecter</button>
+
             </div>
           </div>
         </aside>
@@ -102,8 +225,8 @@ function Home() {
             <textarea
               placeholder="Avez-vous de l'espace ou voulez-vous envoyer quelque chose ?"
               className="post-content"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
             ></textarea>
             <input type="file" id="file-input" onChange={handleImageChange} hidden />
             <label htmlFor="file-input" className="file-input-label">
@@ -115,25 +238,25 @@ function Home() {
           </div>
           <div className="posts-list">
             {posts.map((post) => (
-              <div key={post.id} className="post">
-                <img src={post.profileImg} alt="Profile" className="profile-img" />
+              <div key={post._id} className="post">
+                <img src={`http://localhost:5000${post.picture}`} alt="Profile" className="profile-img" />
                 <div className="post-details">
                   <h3>{post.title}</h3>
-                  <p>{post.content}</p>
-                  {post.postImg && <img src={post.postImg} alt="Post" className="post-img" />}
-                  <small>Posted by {post.author} on {post.date}</small>
-                  <button className="edit-button" onClick={() => handleEdit(post)}>Modifier</button>
-                  <button className="like-button" onClick={() => handleLike(post.id)}>
+                  <p>{post.message}</p>
+                  {post.picture && <img src={`http://localhost:5000${post.picture}`} alt="Post" className="post-img" />}
+                  <small>Posted by {post.userName || 'Utilisateur inconnu'} on {post.createdAt}</small>
+                  {myPosts? <button className="edit-button" onClick={() => handleEdit(post)}>Modifier</button>:'' }
+                  <button className="like-button" onClick={() => handleLike(post._id,'673fa5a9b984yeb93d57a6ac')}>
                     <FaHeart />
                   </button>
-                  <div className="likes-info" onClick={() => toggleShowLikes(post.id)}>
-                    {post.likes.length} {post.likes.length === 1 ? 'Like' : 'Likes'}
+                  <div className="likes-info" onClick={() => toggleShowLikes(post._id)}>
+                   {post.likers.length} {post.likers.length === 1 ? 'Like' : 'Likes'}
                   </div>
-                  {showLikes === post.id && (
+                  {/* {showLikes === post.id && (
                     <div className="liked-by">
                       Liked by: {post.likes.join(', ')}
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
             ))}

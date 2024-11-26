@@ -2,6 +2,8 @@ const PostModel= require('../models/post.model')
 const UserModel= require('../models/user.model')
 const ObjectId= require('mongoose').Types.ObjectId
 const {uploadImage} = require ('./upload.controller')
+const path= require('path')
+const fs= require ('fs')
 
 
 
@@ -13,8 +15,8 @@ module.exports.createPost = async (req,res)=>{
   else filename=""
     const newPost= new PostModel({
         posterId: req.body.posterId,
+        title :req.body.title,
         message: req.body.message,
-        departureDate :req.body.departureDate,
         picture: file ? `/uploads/posts/${filename}` : "",
         likers: []
     })
@@ -38,6 +40,20 @@ module.exports.readPost = async (req,res)=>{
    }
 }
 
+module.exports.readUserPosts = async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const userPosts = await PostModel.find({ posterId: userId }).sort({ createdAt: -1 }); // Trie les posts par date décroissante
+    if (!userPosts.length) {
+      return res.status(404).json({ message: "Aucun post trouvé pour cet utilisateur." });
+    }
+    res.status(200).json(userPosts);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des posts :", error);
+    res.status(500).json({ message: "Erreur serveur lors de la récupération des posts." });
+  }
+};
 
 module.exports.updatePost = async (req,res)=>{
     if (!ObjectId.isValid(req.params.id))
@@ -48,7 +64,9 @@ module.exports.updatePost = async (req,res)=>{
             { _id: req.params.id },
             {
                 $set: {
+                    title: req.body.title,
                     message: req.body.message,
+                    // picture: req.body.picture
                 },
             },
             { new: true, upsert: true, setDefaultsOnInsert: true }
@@ -67,8 +85,20 @@ module.exports.deletePost = async (req,res)=>{
         return res.status(400).send("ID unknown : " + req.params.id);
 
     try {
+       const post = await PostModel.findById(req.params.id);
+       if(post){
+        const oldImagePath = path.join(__dirname,'..',post.picture);
+     
+
+        // Vérifie si le fichier existe avant de le supprimer
+        if (fs.existsSync(oldImagePath)) {
+          fs.unlinkSync(oldImagePath);
+        }
+       }
         await PostModel.deleteOne({ _id: req.params.id })
         res.status(200).json({ message: "Successfuly delete" })
+        
+
     }
     catch (err) {
         console.log('error' + err)

@@ -12,23 +12,10 @@ const {checkUser, requireAuth} = require('./midlleware/auth.midlleware')
 
 
 const cors = require('cors');
-// // Utilisation de cors pour permettre l'accès depuis localhost:3000
-// app.use(cors({
-//   origin: 'http://localhost:3000', // Autorise seulement cette origine
-//   credentials: true, // Autorise les cookies si nécessaire
-// })); 
-
-// // Ou pour autoriser toutes les origines (pour le développement)
-// app.use(cors());
-// // Middleware pour parser le JSON
-// app.use(express.json());
-
-// // Routes API
-// app.use('/api/user', require('./routes/user.routes'));
 const corsOptions = {
   origin: "http://localhost:3000",
   credentials: true,
-  'allowedHeaders': ['sessionId', 'Content-Type'],
+  'allowedHeaders': ['sessionId', 'Content-Type','Authorization'],
   'exposedHeaders': ['sessionId'],
   'methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
   'preflightContinue': false
@@ -41,6 +28,8 @@ const path = require("path")
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended : true}))
 app.use(cookieParser());
+app.use('/uploads', express.static('uploads'));
+
 
 
 // routes

@@ -6,8 +6,8 @@ const PostSchema = new mongoose.Schema(
       type: String,
       required: true
     },
-    departureDate: {
-      type: Date,
+    title: {
+      type: String,
       required:true
     },
     message: {

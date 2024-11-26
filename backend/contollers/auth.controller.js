@@ -4,10 +4,10 @@ const crypto = require('crypto');
 const jwt = require ('jsonwebtoken')
 
 module.exports.signUp = async (req, res) => {
-    const { nom, prenom, email, password } = req.body;
+    const { name,email, password } = req.body;
 
     try {
-        if (!nom || !prenom || !email || !password) {
+        if (!name || !email || !password) {
             return res.status(400).json({ error: 'Tous les champs sont requis.' });
         }
 
@@ -15,7 +15,7 @@ module.exports.signUp = async (req, res) => {
         const generateToken = () => {
             return crypto.randomBytes(32).toString('hex'); // Génère un token de 32 octets en hexadécimal
         };
-        const user = await UserModel.create({ nom, prenom, email, password,confirmationToken: generateToken() });
+        const user = await UserModel.create({ name, email, password,confirmationToken: generateToken() });
 
 
 
@@ -37,7 +37,7 @@ module.exports.signUp = async (req, res) => {
             from: 'ton-email@gmail.com',
             to: email,
             subject: 'Confirmation de votre compte',
-            text: `Bonjour ${prenom},\n\nMerci de vous être inscrit !\n\n Ceci est un email de confirmation de votre compte veillez clique sur le lien suivant: \n\n ${confirmationUrl} \n\nCordialement,\nL'équipe`
+            text: `Bonjour ${name},\n\nMerci de vous être inscrit !\n\n Ceci est un email de confirmation de votre compte veillez clique sur le lien suivant: \n\n ${confirmationUrl} \n\nCordialement,\nL'équipe`
         };
 
      
@@ -99,7 +99,7 @@ module.exports.signIn= async (req,res)=>{
                 const token= createToken(user._id)
                 res.cookie('jwt',token,{httpOnly:true,maxAge})
                 console.log(user._id)
-                res.status(201).json({user:user._id})
+                res.status(201).json({user:user})
                 return user
             } 
         
@@ -109,8 +109,17 @@ module.exports.signIn= async (req,res)=>{
     }
 }
 
-module.exports.logout= async (req,res)=>{
-    res.cookie('jwt', '', { maxAge: 1 });
-    res.redirect('/');
-}
 
+
+module.exports.logout = (req, res) => {
+    try {
+      // Supprimez le cookie contenant le token
+      res.clearCookie('token', { httpOnly: true, secure: true, sameSite: 'Strict' });
+      return res.status(200).json({ message: 'Déconnexion réussie' });
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion :', error);
+      return res.status(500).json({ error: 'Erreur serveur lors de la déconnexion' });
+    }
+  };
+  
+  
