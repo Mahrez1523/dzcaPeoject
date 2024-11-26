@@ -1,136 +1,3 @@
-// import React, {useState} from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import axios from 'axios'
-
-// function SignUp() {
-//     const navigate = useNavigate();
-
-//     const [nom, setNom] = useState("");
-//     const [prenom, setPrenom] = useState("");
-//     const [email, setEmail] = useState("");
-//     const [password, setPassword] = useState("");
-//     const [controlPassword, setControlPassword] = useState("");
-   
-  
-//     const handleSubmit = async (e) => {
-//       e.preventDefault();
-//       const emailError = document.querySelector(".email.error");
-//       const passwordError = document.querySelector(".password.error");
-//       const passwordConfirmError = document.querySelector(
-//         ".password-confirm.error"
-//       );
-//       if (password !== controlPassword)
-//         passwordConfirmError.innerHTML =
-//           "Les mots de passe ne correspondent pas";
-    
-  
-//       await axios({
-//         method: "post",
-//         url: "http://localhost:5000/api/user/register",
-//         data: {
-//           nom,
-//           prenom,
-//           email,
-//           password
-//         },
-//       })
-//         .then((res) => {
-//           console.log(res);
-//           if (res.data.errors) { 
-//             emailError.innerHTML = res.data.errors.email;
-//             passwordError.innerHTML = res.data.errors.password;
-//           } else {
-           
-//           }
-//         })
-//         .catch((err) => console.log(err));
-//     };
-//     return (
-//         <div className="signup-container">
-//         <h2>S'inscrire</h2>
-//         <form onSubmit={handleSubmit}>
-//           {/* Name Field */}
-//           <div>
-//             <label htmlFor="name">Nom:</label>
-//             <input
-//               type="text"
-//               id="name"
-//               name="name"
-//               value={nom}
-//                 onChange={(e) => setNom(e.target.value)}
-//               required
-//             />
-//           </div>
-//             {/* prenom Field */}
-//             <div>
-//             <label htmlFor="name">Prenom:</label>
-//             <input
-//               type="text"
-//               id="prenom"
-//               name="name"
-//               value={prenom}
-//                 onChange={(e) => setPrenom(e.target.value)}
-//               required
-//             />
-//           </div>
-  
-//           {/* Email Field */}
-//           <div>
-//             <label htmlFor="email">Email:</label>
-//             <input
-//               type="email"
-//               id="email"
-//               name="email"
-//               value={email}
-//               onChange={(e) => setEmail(e.target.value)}
-//               required
-//             />
-//           </div>
-//           <div className="email error"></div>
-  
-//           {/* Password Field */}
-//           <div>
-//             <label htmlFor="password">Mot de passe:</label>
-//             <input
-//               type="password"
-//               id="password"
-//               name="password"
-//               value={password}
-//               onChange={(e) => setPassword(e.target.value)}
-//               required
-//             />
-//           </div>
-//           <div className="password error"></div>
-  
-//           {/* Confirm Password Field */}
-//           <div>
-//             <label htmlFor="confirmPassword">Confirmer mot de passe:</label>
-//             <input
-//               type="password"
-//               id="confirmPassword"
-//               name="confirmPassword"
-//               value={controlPassword}
-//               onChange={(e) => setControlPassword(e.target.value)}
-//               required
-//             />
-//           </div>
-//           <div className="password-confirm error" ></div>
-  
-//           {/* Submit Button */}
-//           <button type="submit">S'inscrire</button>
-//         </form>
-
-//         {/* <div>
-//             <h1>Sign Up</h1>
-//             <button onClick={() => navigate('/signin')}>Aller à Sign In</button>
-//         </div> */}
-//       </div>
-       
-//     );
-// }
-
-// export default SignUp;
-
 
 import React, { useState } from 'react';
 import './signup.css';
@@ -167,16 +34,13 @@ const SignUp = () => {
       return;
     }
         try {
-            const response = await API.post('/user/register', formData);
-            console.log('User registered:', response.data);
+             await API.post('/user/register', formData);
             alert('Formulaire soumis avec succès !');
             navigate('/signin')
         } catch (error) {
           //  console.error('Error registering user:', error.response.data.message);
             alert('Error registering user:', error.response.data.message);
         }
-    // Soumission réussie
-    console.log('Données utilisateur :', formData);
     
   };
 

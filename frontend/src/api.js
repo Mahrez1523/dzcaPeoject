@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-    baseURL: 'http://localhost:5000/api', // Change cette URL si tu déploies l'API.
+    baseURL: `${process.env.REACT_APP_API_URL}/api`, // Change cette URL si tu déploies l'API.
 });
 
 // Middleware pour ajouter le token aux requêtes

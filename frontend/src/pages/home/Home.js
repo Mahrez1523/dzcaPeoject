@@ -76,7 +76,7 @@ function Home() {
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/post');
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/post`);
       if (response.ok) {
         const data = await response.json();
         setPosts(data); // Mettre à jour les posts dans l'état
@@ -165,7 +165,7 @@ function Home() {
       // Appel à l'API pour se déconnecter
       const response = await API.post('/user/logout');
       if (response.status === 200) {
-        console.log('Déconnexion réussie');
+        alert('Déconnexion réussie');
       } else {
         console.error('Problème lors de la déconnexion :', response.status);
       }
@@ -197,7 +197,7 @@ function Home() {
       <div className="content-wrapper">
         <aside className="profile-sidebar">
           <div className="profile">
-            <img src= {`http://localhost:5000${userData.profiliePicture}`} alt="Profile" className="profile-img" />
+            <img src= {`${process.env.REACT_APP_API_URL + userData.profiliePicture}`} alt="Profile" className="profile-img" />
             <h2>{userData.name }</h2>
             <button className="settings-button" onClick = {checkProfile}>Voir profil</button>
             <button className="view-posts-button" onClick={() => setmyPosts((prev) => !prev)}>{myPosts ? 'Tous les posts' : 'Mes Publications'}</button>
@@ -239,11 +239,11 @@ function Home() {
           <div className="posts-list">
             {posts.map((post) => (
               <div key={post._id} className="post">
-                <img src={`http://localhost:5000${post.picture}`} alt="Profile" className="profile-img" />
+                <img src={`${process.env.REACT_APP_API_URL + post.picture}`} alt="Profile" className="profile-img" />
                 <div className="post-details">
                   <h3>{post.title}</h3>
                   <p>{post.message}</p>
-                  {post.picture && <img src={`http://localhost:5000${post.picture}`} alt="Post" className="post-img" />}
+                  {post.picture && <img src={`${process.env.REACT_APP_API_URL+post.picture}`} alt="Post" className="post-img" />}
                   <small>Posted by {post.userName || 'Utilisateur inconnu'} on {post.createdAt}</small>
                   {myPosts? <button className="edit-button" onClick={() => handleEdit(post)}>Modifier</button>:'' }
                   <button className="like-button" onClick={() => handleLike(post._id,'673fa5a9b984yeb93d57a6ac')}>

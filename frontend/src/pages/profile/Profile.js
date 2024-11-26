@@ -29,7 +29,7 @@ function Profile() {
             name: response.data.name,
             phone: response.data.phone,
             email: response.data.email,
-            image: `http://localhost:5000${response.data.profiliePicture}` || prevProfile.image,
+            image: `${process.env.REACT_APP_API_URL+response.data.profiliePicture}` || prevProfile.image,
           }));
         })
         .catch((err) => console.error('Erreur lors de la récupération du profil :', err));
@@ -74,7 +74,6 @@ function Profile() {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
       }
-      console.log('ilage uploaded')
       // Met à jour les autres informations du profil
       await API.put(`/user/${userId}`, {
         name: profile.name,
@@ -102,7 +101,7 @@ function Profile() {
         name: response.data.name,
         phone: response.data.phone,
         email: response.data.email,
-        image: `http://localhost:5000${response.data.profiliePicture}` || prevProfile.image,
+        image: `${process.env.REACT_APP_API_URL+response.data.profiliePicture}` || prevProfile.image,
       }));
       dispatch(fetchUserPosts(userId)); // Recharge aussi les posts
     } catch (err) {
@@ -153,7 +152,7 @@ function Profile() {
           <div key={post._id} className="post">
             <h3>{post.title}</h3>
             <p>{post.message}</p>
-            {post.picture && <img src={`http://localhost:5000${post.picture}`} alt="Post" />}
+            {post.picture && <img src={`${process.env.REACT_APP_API_URL+post.picture}`} alt="Post" />}
             <button onClick={() => handleDeletePost(post._id)}>Supprimer</button>
           </div>
         ))}
